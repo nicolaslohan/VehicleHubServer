@@ -1,0 +1,26 @@
+# Variables
+@base_url=http://localhost:3333
+
+###
+
+# GET HEALTH
+GET {{base_url}}/health
+
+
+###
+
+# GET USERS
+GET {{base_url}}/users
+
+###
+
+# POST USER
+POST {{base_url}}/users
+Accept: application/json
+Content-Type: application/json
+
+{
+    "email": "nicolas.souza@proxximatelecom.com.br",
+    "name": "Nicolas Souza",
+    "password": "admin"
+}

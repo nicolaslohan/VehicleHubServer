@@ -1,0 +1,43 @@
+# docker-compoose.yaml
+
+services:
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:16-alpine
+    container_name: vehiclehub-db
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=vehiclehub
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data # Volume para persistir os dados
+    networks:
+      - vehiclehub-net
+
+  # Serviço da Aplicação Node.js
+  api:
+    build: . # Constrói a imagem a partir do Dockerfile na pasta atual
+    container_name: vehiclehub-api
+    ports:
+      - "3333:3333"
+    depends_on:
+      - db # Garante que o banco de dados inicie antes da API
+    environment:
+      - DATABASE_URL="postgresql://docker:docker@db:5432/vehiclehub"
+    volumes:
+      # A MÁGICA DO HOT-RELOAD ACONTECE AQUI:
+      # Mapeia a pasta 'src' local para a pasta '/app/src' no container.
+      # Qualquer alteração no seu computador é refletida instantaneamente dentro do container.
+      - ./src:/app/src
+    networks:
+      - vehiclehub-net
+
+networks:
+  vehiclehub-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
