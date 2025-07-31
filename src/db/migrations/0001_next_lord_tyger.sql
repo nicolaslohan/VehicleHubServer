@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "first_access" boolean DEFAULT true NOT NULL;

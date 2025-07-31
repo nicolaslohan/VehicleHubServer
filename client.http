@@ -20,7 +20,65 @@ Accept: application/json
 Content-Type: application/json
 
 {
-    "email": "nicolas.souza@proxximatelecom.com.br",
-    "name": "Nicolas Souza",
+    "email": "nicolas.araujo@mail.net",
+    "name": "Nicolas Araujo",
     "password": "admin"
 }
+
+###
+
+# UPDATE USER
+PUT {{base_url}}/users/4
+Accept: application/json
+Content-Type: application/json
+
+{
+    "new_password": "admin2",
+    "new_password_confirmation": "admin2",
+    "current_password": "admin"
+}
+
+###
+
+# DELETE USER
+DELETE {{base_url}}/users/1
+
+
+###
+
+# GET CARS
+GET https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/honda?format=json
+
+###
+
+GET https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeId/474?format=json
+
+###
+
+# GET ALL MODELS
+GET https://brasilapi.com.br/api/fipe/marcas/v1/carros
+
+###
+
+GET https://parallelum.com.br/fipe/api/v1/carros/marcas
+
+###
+
+GET https://parallelum.com.br/fipe/api/v1/carros/marcas/22/modelos
+
+###
+
+GET https://parallelum.com.br/fipe/api/v1/carros/marcas/22/modelos/8004/anos
+
+###
+
+GET https://parallelum.com.br/fipe/api/v1/carros/marcas/22/modelos/8004/anos/2021-1
+
+###
+
+GET https://viacep.com.br/ws/58410280/json/
+
+###
+
+# GET ALL MODELS
+GET {{base_url}}/models
