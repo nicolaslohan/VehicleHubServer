@@ -1,5 +1,6 @@
 import { pgTable, text, timestamp, bigserial, boolean } from 'drizzle-orm/pg-core'
 
+
 export const users = pgTable('users', {
     id: bigserial('id', { mode: 'number' }).primaryKey(),
     name: text().notNull(),

@@ -10,6 +10,8 @@ export const updateUserRoute: FastifyPluginCallbackZod = (app) => {
         '/users/:id',
         {
             schema: {
+                summary: 'Atualizar um usuário',
+                tags: ['Users'],
                 params: z.object({
                     id: z.string()
                 }),
@@ -21,7 +23,24 @@ export const updateUserRoute: FastifyPluginCallbackZod = (app) => {
                     new_password_confirmation: z.string().optional(),
                     current_password: z.string(),
 
-                })
+                }),
+                response: {
+                    200: z.object({
+                        message: z.string()
+                    }),
+                    400: z.object({
+                        message: z.string()
+                    }),
+                    401: z.object({
+                        message: z.string()
+                    }),
+                    404: z.object({
+                        message: z.string()
+                    }),
+                    500: z.object({
+                        message: z.string()
+                    })
+                }
             },
         },
         async (request, reply) => {

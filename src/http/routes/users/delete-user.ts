@@ -9,9 +9,16 @@ export const deleteUserRoute: FastifyPluginCallbackZod = (app) => {
         '/users/:id',
         {
             schema: {
+                summary: 'Desabilitar um usuário',
+                tags: ['Users'],
                 params: z.object({
                     id: z.string()
-                })
+                }),
+                response: {
+                    200: z.object({
+                        message: z.string()
+                    })
+                }
             }
         },
         async (request, reply) => {

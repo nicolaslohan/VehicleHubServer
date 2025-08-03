@@ -1,7 +1,7 @@
-import { pgTable, varchar, timestamp, bigserial } from 'drizzle-orm/pg-core'
+import { pgTable, varchar, timestamp, bigint } from 'drizzle-orm/pg-core'
 
 export const cities = pgTable('cities', {
-    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    id: bigint('id', { mode: 'number' }).primaryKey(),
     city_name: varchar('city_name', { length: 255 }).notNull(),
     state: varchar('state', { length: 255 }).notNull(),
     state_acronym: varchar('state_acronym', { length: 255 }),

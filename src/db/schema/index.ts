@@ -15,6 +15,9 @@ import { garage_addresses } from "./garage_addresses.ts"
 import { vehicles } from "./vehicles.ts"
 import { vehicle_action_types } from "./vehicle_action_types.ts"
 import { vehicle_actions } from "./vehicle_actions.ts"
+import { checkup_schedules } from "./checkup_schedules.ts"
+import { cities } from "./cities.ts"
+import { refreshTokens } from "./refresh_tokens.ts"
 
 export const schema = {
     users,
@@ -33,5 +36,8 @@ export const schema = {
     garage_addresses,
     vehicles,
     vehicle_action_types,
-    vehicle_actions
+    vehicle_actions,
+    checkup_schedules,
+    cities,
+    refreshTokens
 }
