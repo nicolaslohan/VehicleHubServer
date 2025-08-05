@@ -1,7 +1,7 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
-import { schema } from '../../../db/schema/index.ts'
-import { db } from '../../../db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
+import { db } from '@/db/connection.ts'
 import { eq, sql } from 'drizzle-orm'
 
 export const deleteDepartmentRoute: FastifyPluginCallbackZod = (app) => {

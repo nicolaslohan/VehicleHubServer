@@ -3,16 +3,33 @@ import { z } from 'zod/v4'
 import { schema } from '../../../db/schema/index.ts'
 import { db } from '../../../db/connection.ts'
 import { eq, sql } from 'drizzle-orm'
+import { createActionListParams, createActionParams } from '@/types/action-types.ts'
 
 export const createActionRoute: FastifyPluginCallbackZod = (app) => {
     app.post(
         '/actions',
         {
             schema: {
-                body: z.object({
-                    action: z.string(),
-                    created_by: z.number(),
-                }),
+                summary: 'Cria uma nova ação',
+                tags: ['Actions'],
+                body: createActionParams,
+                response: {
+                    200: z.object({
+                        actionId: z.number()
+                    }),
+                    400: z.object({
+                        message: z.string()
+                    }),
+                    404: z.object({
+                        message: z.string()
+                    }),
+                    409: z.object({
+                        message: z.string()
+                    }),
+                    500: z.object({
+                        message: z.string()
+                    })
+                }
             },
         },
         async (request, reply) => {

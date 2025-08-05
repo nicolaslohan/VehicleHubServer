@@ -1,9 +1,9 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
-import { schema } from '../../../db/schema/index.ts'
-import { db } from '../../../db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
+import { db } from '@/db/connection.ts'
 import { eq, sql } from 'drizzle-orm'
-import { createCostCenterParams } from '@/@types/cost-center-types.ts'
+import { createCostCenterParams } from '@/types/cost-center-types.ts'
 
 export const createCostCenterRoute: FastifyPluginCallbackZod = (app) => {
     app.post(
@@ -109,7 +109,9 @@ export const createCostCenterRoute: FastifyPluginCallbackZod = (app) => {
             const insertedCostCenter = result[0]
 
             if (!insertedCostCenter) {
-                throw new Error('Erro ao criar novo centro de custo.')
+                return reply.status(500).send({
+                    message: 'Erro ao criar novo centro de custo.'
+                })
             }
 
             return reply.status(201).send({

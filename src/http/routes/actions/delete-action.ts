@@ -9,9 +9,22 @@ export const deleteActionRoute: FastifyPluginCallbackZod = (app) => {
         '/actions/:id',
         {
             schema: {
+                summary: 'Deleta uma ação',
+                tags: ['Actions'],
                 params: z.object({
                     id: z.string()
-                })
+                }),
+                response: {
+                    200: z.object({
+                        message: z.string()
+                    }),
+                    404: z.object({
+                        message: z.string()
+                    }),
+                    500: z.object({
+                        message: z.string()
+                    })
+                }
             }
         },
         async (request, reply) => {

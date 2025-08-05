@@ -111,10 +111,19 @@ Content-Type: application/json
   "password": "admin2"
 }
 
+### Save token
 > {% client.global.set("token", response.body.token) %}
 @token = {{token}}
 
 
 ### Protected route (/me) – use saved token
 GET {{base_url}}/users/me
-Authorization: Bearer {{authToken}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NCwiZW1haWwiOiJuaWNvbGFzLmFyYXVqb0BtYWlsLm5ldCIsIm5hbWUiOiJOaWNvbGFzIEFyYXVqbyIsImlhdCI6MTc1NDIzNzQyNywiZXhwIjoxNzU0MjM4MzI3fQ.G--SroAf-Hmy3POMYPohpS7XVKU2FobIsGyoEF1RKkU
+
+###
+
+POST {{base_url}}/users/refresh
+
+###
+
+POST {{base_url}}/users/logout

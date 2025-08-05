@@ -1,12 +1,12 @@
 import '@fastify/cookie';
-import { hashPassword, verifyPassword } from 'services/hash';
+import { hashPassword, verifyPassword } from '../../services/hash';
 import { db } from "@/db/connection";
 import { schema } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { FastifyPluginCallbackZod } from "fastify-type-provider-zod";
 import { generateTokens, revokeOldTokens } from "@/services/handle-tokens";
-import { loginListSchema, loginType, registerListSchema, registerType } from '@/@types/user-types';
-import { z } from 'zod/v4';
+import { loginListSchema, loginType, registerSchema, registerType } from '@/types/user-types';
+import { z } from 'zod';
 import { FastifyRequest } from 'fastify';
 
 export const registerUserRoute: FastifyPluginCallbackZod = (app) => {
@@ -15,7 +15,7 @@ export const registerUserRoute: FastifyPluginCallbackZod = (app) => {
             schema: {
                 summary: 'Registrar um novo usuário.',
                 tags: ['Auth'],
-                body: registerListSchema,
+                body: registerSchema,
                 response: {
                     201: z.object({ message: z.string() }),
                     400: z.object({ error: z.string() }),
@@ -182,7 +182,7 @@ export const logoutRoute: FastifyPluginCallbackZod = (app) => {
                 await db.delete(schema.refreshTokens).where(eq(schema.refreshTokens.token, refreshToken));
             }
 
-            reply.clearCookie('refreshToken', { path: '/auth/refresh' });
+            reply.clearCookie('refreshToken', { path: '/users/refresh' });
             reply.status(200).send({ message: 'Logged out' });
         })
 }

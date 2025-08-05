@@ -6,7 +6,7 @@
     "start": "node --env-file .env --experimental-strip-types --no-warnings src/server.ts",
     "dev": "tsx watch src/server.ts",
     "build": "tsx build",
-    "test": "tsx test",
+    "test": "jest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
@@ -15,12 +15,18 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^24.1.0",
+    "@types/node": "^24.2.0",
+    "@types/supertest": "^6.0.3",
     "dayjs": "^1.11.13",
     "drizzle-kit": "^0.31.4",
+    "jest": "^30.0.5",
+    "supertest": "^7.1.4",
+    "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",

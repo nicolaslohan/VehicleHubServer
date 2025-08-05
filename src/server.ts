@@ -27,7 +27,11 @@ import { updateActionRoute } from './http/routes/actions/update-action.ts'
 import { loginUserRoute, logoutRoute, meRoute, refreshRoute, registerUserRoute } from './http/auth/auth.ts'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
-import { start } from 'repl'
+import { getControllersRoute } from './http/routes/controllers/get-controllers.ts'
+import { deleteControllerRoute } from './http/routes/controllers/delete-controller.ts'
+import { createControllerRoute } from './http/routes/controllers/create-controller.ts'
+import { updateControllerRoute } from './http/routes/controllers/update-controller.ts'
+import { updateCostCenterRoute } from './http/routes/cost-center/update-cost-center.ts'
 
 if (!process.env.PORT) {
 
@@ -104,16 +108,23 @@ async function startServer() {
     app.register(createDepartmentRoute)
     app.register(deleteDepartmentRoute)
 
-    // // Cost Centers Routes
+    // Cost Centers Routes
     app.register(getCostCenterRoute)
     app.register(createCostCenterRoute)
+    app.register(updateCostCenterRoute)
     app.register(deleteCostCenterRoute)
 
-    // // Actions Routes
-    // app.register(getActionsRoute)
-    // app.register(createActionRoute)
-    // app.register(deleteActionRoute)
-    // app.register(updateActionRoute)
+    // Actions Routes
+    app.register(getActionsRoute)
+    app.register(createActionRoute)
+    app.register(updateActionRoute)
+    app.register(deleteActionRoute)
+
+    // Controllers Routes
+    app.register(getControllersRoute)
+    app.register(createControllerRoute)
+    app.register(updateControllerRoute)
+    app.register(deleteControllerRoute)
 
 
 

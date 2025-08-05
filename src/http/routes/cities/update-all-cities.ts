@@ -1,7 +1,7 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod';
 import axios from 'axios';
-import { db } from '../../../db/connection.ts';
-import { schema } from '../../../db/schema/index.ts';
+import { db } from '@/db/connection.ts';
+import { schema } from '@/db/schema/index.ts';
 import { sql } from 'drizzle-orm';
 import z from 'zod';
 

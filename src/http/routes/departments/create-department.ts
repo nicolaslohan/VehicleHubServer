@@ -1,9 +1,9 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
-import { schema } from '../../../db/schema/index.ts'
-import { db } from '../../../db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
+import { db } from '@/db/connection.ts'
 import { eq, sql } from 'drizzle-orm'
-import { createDepartmentParams, createDepartmentParamsList } from '@/@types/department-types.ts'
+import { createDepartmentParams, createDepartmentParamsList } from '@/types/department-types.ts'
 
 export const createDepartmentRoute: FastifyPluginCallbackZod = (app) => {
     app.post(
@@ -87,7 +87,9 @@ export const createDepartmentRoute: FastifyPluginCallbackZod = (app) => {
             const insertedDepartments = result[0]
 
             if (!insertedDepartments) {
-                throw new Error('Erro ao criar novo departamento.')
+                return reply.status(500).send({
+                    message: 'Erro ao criar novo departamento.'
+                })
             }
 
             return reply.status(201).send({

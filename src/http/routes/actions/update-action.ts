@@ -1,8 +1,9 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
 import { z } from 'zod/v4'
-import { schema } from '../../../db/schema/index.ts'
-import { db } from '../../../db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
+import { db } from '@/db/connection.ts'
 import { eq, sql } from 'drizzle-orm'
+import { updateActionParams } from '@/types/action-types.ts'
 
 export const updateActionRoute: FastifyPluginCallbackZod = (app) => {
     app.put(
@@ -12,10 +13,20 @@ export const updateActionRoute: FastifyPluginCallbackZod = (app) => {
                 params: z.object({
                     id: z.string()
                 }),
-                body: z.object({
-                    action: z.string(),
-                    modified_by: z.number(),
-                }),
+                summary: 'Altera uma ação',
+                tags: ['Actions'],
+                body: updateActionParams,
+                response: {
+                    200: z.object({
+                        message: z.string()
+                    }),
+                    404: z.object({
+                        message: z.string()
+                    }),
+                    500: z.object({
+                        message: z.string()
+                    })
+                }
             }
         },
         async (request, reply) => {

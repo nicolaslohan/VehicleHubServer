@@ -1,9 +1,9 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
-import { db } from '../../../db/connection.ts'
-import { schema } from '../../../db/schema/index.ts'
+import { db } from '@/db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
 import { eq } from 'drizzle-orm'
 import { alias } from 'drizzle-orm/pg-core/alias'
-import { departmentsListResponse } from '@/@types/department-types.ts'
+import { departmentsListResponse } from '@/types/department-types.ts'
 import z, { string, ZodError } from 'zod'
 
 export const getDepartmentsRoute: FastifyPluginCallbackZod = (app) => {
