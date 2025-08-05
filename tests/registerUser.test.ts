@@ -1,94 +1,150 @@
-import Fastify from 'fastify'
-import supertest from 'supertest'
-import { registerUserRoute } from '../src/http/auth/auth'
+import { fastify } from 'fastify';
+import { ZodTypeProvider, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import supertest from 'supertest';
+import { registerUserRoute } from '../src/http/auth/auth';
+import { db } from '@/db/connection';
+import { hashPassword } from '@/services/hash';
+import { errorHandler } from '@/plugins/errors-handler';
 
-// Mock do db e hashPassword (mude os caminhos se necessário)
-jest.mock('../src/db/connection', () => ({
+jest.mock('@/db/connection', () => ({
   db: {
-    insert: jest.fn()
-  }
-}))
+    select: jest.fn(),
+    insert: jest.fn(),
+  },
+}));
 
-jest.mock('../src/services/hash', () => ({
-  hashPassword: jest.fn()
-}))
+jest.mock('@/services/hash', () => ({
+  hashPassword: jest.fn(),
+}));
 
-import { db } from '../src/db/connection'
-import { hashPassword } from '../src/services/hash'
 
-describe('POST /users/register', () => {
-  const app = Fastify()
-  app.register(registerUserRoute)
+describe('POST /users/register - Success', () => {
+  let app: ReturnType<typeof fastify>;
 
   beforeAll(async () => {
-    await app.ready()
-  })
+    app = fastify().withTypeProvider<ZodTypeProvider>()
+    app.setValidatorCompiler(validatorCompiler)
+    app.setSerializerCompiler(serializerCompiler)
+    app.register(registerUserRoute)
+    app.setErrorHandler(errorHandler)
+    await app.ready();
+  });
 
   afterAll(async () => {
-    await app.close()
-  })
+    await app.close();
+  });
 
   beforeEach(() => {
     jest.clearAllMocks()
-  })
+  });
+
+  const userPayload = {
+    name: 'John Doe',
+    email: 'john@example.com',
+    password: 'password123',
+    confirmPassword: 'password123',
+  };
 
   it('should register user successfully', async () => {
-    // Configura mocks
-    (hashPassword as jest.Mock).mockResolvedValue('hashed-password')
-      // Simula db.insert(...).values(...) retornando undefined (sucesso)
-      (db.insert as jest.Mock).mockReturnValue({
-        values: jest.fn().mockResolvedValue(undefined),
-      })
 
-    const res = await supertest(app.server)
-      .post('/users/register')
-      .send({
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-      })
+    // Mock db.select().from().where()
+    const whereMock = jest.fn().mockResolvedValue([]);
+    const fromMock = jest.fn(() => ({ where: whereMock }));
+    (db.select as jest.Mock) = jest.fn(() => ({ from: fromMock }));
 
-    expect(res.status).toBe(201)
-    expect(res.body).toEqual({ message: 'Usuário registrado com sucesso!' })
-    expect(hashPassword).toHaveBeenCalledWith('password123')
-    expect(db.insert).toHaveBeenCalled()
-  })
+    // Mock db.insert(...).values(...)
+    const valuesMock = jest.fn().mockResolvedValue(undefined);
+    (db.insert as jest.Mock).mockReturnValue({ values: valuesMock });
 
-  it('should fail when passwords do not match', async () => {
-    const res = await supertest(app.server)
-      .post('/users/register')
-      .send({
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'password123',
-        confirmPassword: 'wrongpassword',
-      })
+    // Mock hashPassword
+    (hashPassword as jest.Mock).mockResolvedValue('hashed-password');
 
-    expect(res.status).toBe(400)
-    expect(res.body).toEqual({ error: 'As senhas não são iguais.' })
-    expect(hashPassword).not.toHaveBeenCalled()
-    expect(db.insert).not.toHaveBeenCalled()
-  })
+    const res = await supertest(app.server).post('/users/register').send(userPayload);
 
-  it('should return 400 if email already exists', async () => {
-    (hashPassword as jest.Mock).mockResolvedValue('hashed-password')
-      (db.insert as jest.Mock).mockReturnValue({
-        values: jest.fn().mockRejectedValue(new Error('duplicate key value')),
-      })
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual({
+      message: 'Usuário registrado com sucesso!',
+      name: userPayload.name,
+      email: userPayload.email,
+    });
+  });
 
-    const res = await supertest(app.server)
-      .post('/users/register')
-      .send({
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'password123',
-        confirmPassword: 'password123',
-      })
+  it('should fail if passwords do not match', async () => {
+    const res = await supertest(app.server).post('/users/register').send({
+      ...userPayload,
+      confirmPassword: 'wrong-password',
+    });
 
-    expect(res.status).toBe(400)
-    expect(res.body).toEqual({ error: 'Já existe um usuário cadastrado com este e-mail.' })
-    expect(hashPassword).toHaveBeenCalled()
-    expect(db.insert).toHaveBeenCalled()
-  })
-})
+    expect(res.status).toBe(400);
+    expect(res.body).toHaveProperty('error', 'Erro de validação');
+    expect(res.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'confirmPassword', message: 'As senhas não são iguais.' })
+      ])
+    );
+  });
+
+  it('should fail if user already exists', async () => {
+    const whereMock = jest.fn().mockResolvedValue([{ id: 1, email: 'john@example.com' }]);
+    const fromMock = jest.fn(() => ({ where: whereMock }));
+    (db.select as jest.Mock).mockReturnValue({ from: fromMock });
+
+    (hashPassword as jest.Mock).mockResolvedValue('hashed-password');
+
+    const userPayload = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+    };
+
+    const res = await supertest(app.server).post('/users/register').send(userPayload);
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Já existe um usuário cadastrado com este e-mail.' });
+  });
+
+  it('should fail with validation error (invalid email)', async () => {
+    const res = await supertest(app.server).post('/users/register').send({
+      ...userPayload,
+      email: 'invalid-email',
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('Erro de validação');
+    expect(res.body.details).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'email', message: 'Email inválido.' }),
+      ])
+    );
+  });
+
+  it('should return 500 on unexpected error', async () => {
+    // Suprime o erro no console
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+
+    // Simula erro ao tentar buscar o usuário no DB
+    const fromMock = jest.fn().mockImplementation(() => {
+      throw new Error('DB down');
+    });
+    (db.select as jest.Mock).mockReturnValue({ from: fromMock });
+
+    (hashPassword as jest.Mock).mockResolvedValue('hashed-password');
+
+    const userPayload = {
+      name: 'John Doe',
+      email: 'john@example.com',
+      password: 'password123',
+      confirmPassword: 'password123',
+    };
+
+    const res = await supertest(app.server).post('/users/register').send(userPayload);
+
+    expect(res.status).toBe(500);
+    expect(res.body).toHaveProperty('error');
+    expect(res.body.error).toContain('Erro interno do servidor');
+
+    // Restaura console.error
+    consoleSpy.mockRestore();
+  });
+});

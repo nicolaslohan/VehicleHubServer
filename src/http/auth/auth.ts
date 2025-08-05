@@ -17,28 +17,35 @@ export const registerUserRoute: FastifyPluginCallbackZod = (app) => {
                 tags: ['Auth'],
                 body: registerSchema,
                 response: {
-                    201: z.object({ message: z.string() }),
-                    400: z.object({ error: z.string() }),
+                    201: registerSchema.pick({ name: true, email: true }).extend({ message: z.string() }),
+                    400: z.object({ error: z.string(), details: z.array(z.object({ field: z.string(), message: z.string() })).optional() }),
                     401: z.object({ error: z.string() }),
                 },
             },
         },
-        async (request: FastifyRequest<{ Body: registerType }>, reply) => {
+        async (request, reply) => {
             const { name, email, password, confirmPassword } = request.body;
+
+            // Hash da senha
             const hashedPassword = await hashPassword(password);
 
-            if (password !== confirmPassword) {
-                return reply.code(400).send({ error: "As senhas não são iguais." });
-            }
-
             try {
-                await db.insert(schema.users).values({ name: name, email, password: hashedPassword });
-                reply.code(201).send({ message: "Usuário registrado com sucesso!" });
-            } catch (e) {
-                reply.code(400).send({ error: "Já existe um usuário cadastrado com este e-mail." });
+                // Verificar se o usuario já existe
+                const existingUser = await db
+                    .select()
+                    .from(schema.users)
+                    .where(eq(schema.users.email, email))
+
+                if ((existingUser.length > 0)) return reply.code(400).send({ error: "Já existe um usuário cadastrado com este e-mail." })
+
+                await db.insert(schema.users).values({ name, email, password: hashedPassword });
+                return reply.code(201).send({ message: "Usuário registrado com sucesso!", name, email });
+            } catch (e: any) {
+                // Erro inesperado
+                return reply.code(500).send({ error: "Erro interno do servidor: " + e.message });
             }
         }
-    )
+    );
 }
 
 export const loginUserRoute: FastifyPluginCallbackZod = (app) => {

@@ -1,7 +1,7 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
-import { db } from '../../../db/connection.ts'
-import { schema } from '../../../db/schema/index.ts'
-import { UserResponseSchema, UsersListResponseSchema } from '@/@types/user-types.ts'
+import { db } from '@/db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
+import { UserResponseSchema, UsersListResponseSchema } from '@/types/user-types.ts'
 
 export const getUserRoute: FastifyPluginCallbackZod = (app) => {
     app.get('/users',

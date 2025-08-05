@@ -32,6 +32,9 @@ import { deleteControllerRoute } from './http/routes/controllers/delete-controll
 import { createControllerRoute } from './http/routes/controllers/create-controller.ts'
 import { updateControllerRoute } from './http/routes/controllers/update-controller.ts'
 import { updateCostCenterRoute } from './http/routes/cost-center/update-cost-center.ts'
+import { ZodError } from 'zod'
+import { FastifyError } from 'fastify'
+import { errorHandler } from './plugins/errors-handler.ts'
 
 if (!process.env.PORT) {
 
@@ -71,18 +74,7 @@ async function startServer() {
     app.setSerializerCompiler(serializerCompiler)
     app.setValidatorCompiler(validatorCompiler)
 
-
-
-    app.get('/health',
-        {
-            schema: {
-                summary: 'Health check',
-                tags: ['Health'],
-            }
-        },
-        () => {
-            return { status: 'OK' }
-        })
+    app.setErrorHandler(errorHandler)
 
     app.register(jwtPlugin)
     app.register(require('@fastify/cookie'));

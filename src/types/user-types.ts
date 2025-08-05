@@ -1,11 +1,17 @@
 import { z } from 'zod'
 
-export const registerSchema = z.object({
-    name: z.string().min(1),
-    email: z.string().email(),
-    password: z.string().min(6),
-    confirmPassword: z.string().min(6),
-});
+export const registerSchema = z
+    .object({
+        name: z.string().min(1, 'Nome é obrigatório.'),
+        email: z.string().email('Email inválido.'),
+        password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
+        confirmPassword: z.string().min(6, 'Confirme sua senha com pelo menos 6 caracteres.'),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+        message: 'As senhas não são iguais.',
+        path: ['confirmPassword'],
+    });
+
 
 export const registerListSchema = z.array(registerSchema);
 export type registerType = z.infer<typeof registerSchema>;

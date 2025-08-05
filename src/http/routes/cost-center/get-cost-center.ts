@@ -1,9 +1,9 @@
 import type { FastifyPluginCallbackZod } from 'fastify-type-provider-zod'
-import { db } from '../../../db/connection.ts'
-import { schema } from '../../../db/schema/index.ts'
+import { db } from '@/db/connection.ts'
+import { schema } from '@/db/schema/index.ts'
 import { alias } from 'drizzle-orm/pg-core/alias'
 import { eq } from 'drizzle-orm'
-import { costCenterResponse } from '@/@types/cost-center-types.ts'
+import { costCenterResponse } from '@/types/cost-center-types.ts'
 import z, { ZodError } from 'zod'
 
 export const getCostCenterRoute: FastifyPluginCallbackZod = (app) => {

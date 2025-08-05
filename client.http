@@ -15,14 +15,15 @@ GET {{base_url}}/users
 ###
 
 # POST USER
-POST {{base_url}}/users
+POST {{base_url}}/users/register
 Accept: application/json
 Content-Type: application/json
 
 {
     "email": "nicolas.araujo@mail.net",
     "name": "Nicolas Araujo",
-    "password": "admin"
+    "password": "admin2",
+    "confirmPassword": "admin2"
 }
 
 ###
