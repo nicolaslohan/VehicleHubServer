@@ -23,7 +23,7 @@ Content-Type: application/json
     "email": "nicolas.araujo@mail.net",
     "name": "Nicolas Araujo",
     "password": "admin2",
-    "confirmPassword": "admin2"
+    "confirmPassword": "admin"
 }
 
 ###

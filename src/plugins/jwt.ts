@@ -1,9 +1,15 @@
 import fp from 'fastify-plugin';
+import { FastifyPluginAsync } from 'fastify';
+import fastifyJwt from '@fastify/jwt';
 
-export default fp(async (fastify) => {
-    fastify.register(require('@fastify/jwt'), {
-        secret: process.env.JWT_SECRET!,
-        expires_in: '30m'
+interface JwtPluginOptions {
+    secret: string;
+}
+
+const jwtPlugin: FastifyPluginAsync<JwtPluginOptions> = async (fastify, opts) => {
+    fastify.register(fastifyJwt, {
+        secret: opts.secret,
+        sign: { expiresIn: '30m' },
     });
 
     fastify.decorate("authenticate", async (request: any, reply: any) => {
@@ -13,10 +19,6 @@ export default fp(async (fastify) => {
             reply.send(err);
         }
     });
-});
+};
 
-declare module 'fastify' {
-    interface FastifyInstance {
-        authenticate: any;
-    }
-}
+export default fp(jwtPlugin);

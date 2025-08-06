@@ -24,7 +24,6 @@ import { getActionsRoute } from './http/routes/actions/get-actions.ts'
 import { createActionRoute } from './http/routes/actions/create-action.ts'
 import { deleteActionRoute } from './http/routes/actions/delete-action.ts'
 import { updateActionRoute } from './http/routes/actions/update-action.ts'
-import { loginUserRoute, logoutRoute, meRoute, refreshRoute, registerUserRoute } from './http/auth/auth.ts'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
 import { getControllersRoute } from './http/routes/controllers/get-controllers.ts'
@@ -32,9 +31,12 @@ import { deleteControllerRoute } from './http/routes/controllers/delete-controll
 import { createControllerRoute } from './http/routes/controllers/create-controller.ts'
 import { updateControllerRoute } from './http/routes/controllers/update-controller.ts'
 import { updateCostCenterRoute } from './http/routes/cost-center/update-cost-center.ts'
-import { ZodError } from 'zod'
-import { FastifyError } from 'fastify'
 import { errorHandler } from './plugins/errors-handler.ts'
+import { loginUserRoute } from './http/routes/auth/login-user.ts'
+import { registerUserRoute } from './http/routes/auth/register-user.ts'
+import { meRoute } from './http/routes/auth/me.ts'
+import { refreshRoute } from './http/routes/auth/refresh-user.ts'
+import { logoutRoute } from './http/routes/auth/logout-user.ts'
 
 if (!process.env.PORT) {
 
@@ -76,7 +78,7 @@ async function startServer() {
 
     app.setErrorHandler(errorHandler)
 
-    app.register(jwtPlugin)
+    app.register(jwtPlugin, { secret: env.JWT_SECRET })
     app.register(require('@fastify/cookie'));
 
     // Auth Routes

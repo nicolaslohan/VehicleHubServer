@@ -1,10 +1,10 @@
 import { fastify } from 'fastify';
 import { ZodTypeProvider, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import supertest from 'supertest';
-import { registerUserRoute } from '../src/http/auth/auth';
 import { db } from '@/db/connection';
 import { hashPassword } from '@/services/hash';
 import { errorHandler } from '@/plugins/errors-handler';
+import { registerUserRoute } from '@/http/routes/auth/register-user';
 
 jest.mock('@/db/connection', () => ({
   db: {
