@@ -1,150 +1,157 @@
-import { fastify } from 'fastify';
-import { ZodTypeProvider, serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
-import supertest from 'supertest';
-import { db } from '@/db/connection';
-import jwtPlugin from '@/plugins/jwt.ts'
-import { verifyPassword } from '@/services/hash';
-import { errorHandler } from '@/plugins/errors-handler';
-import { generateTokens } from '@/services/handle-tokens';
-import { loginUserRoute } from '@/http/routes/auth/login-user';
+import { fastify } from "fastify";
+import {
+	serializerCompiler,
+	validatorCompiler,
+	type ZodTypeProvider,
+} from "fastify-type-provider-zod";
+import supertest from "supertest";
+import { db } from "@/db/connection";
+import { loginUserRoute } from "@/http/routes/auth/login-user";
+import { errorHandler } from "@/plugins/errors-handler";
+import jwtPlugin from "@/plugins/jwt.ts";
+import { generateTokens } from "@/services/handle-tokens";
+import { verifyPassword } from "@/services/hash";
 
-jest.mock('../env.ts', () => ({
-    env: {
-        JWT_SECRET: 'secret'
-    }
+jest.mock("../env.ts", () => ({
+	env: {
+		JWT_SECRET: "secret",
+	},
 }));
 
+jest.mock("@/db/connection", () => ({
+	db: {
+		query: {
+			users: {
+				findFirst: jest.fn(),
+			},
+		},
+		select: jest.fn(),
+	},
+}));
 
-jest.mock('@/db/connection', () => ({
-    db: {
-        query: {
-            users: {
-                findFirst: jest.fn()
-            }
-        }
-    }
-}))
+jest.mock("@/services/hash", () => ({
+	verifyPassword: jest.fn(),
+}));
 
-jest.mock('@/services/hash', () => ({
-    verifyPassword: jest.fn(),
-}))
+jest.mock("@/services/handle-tokens", () => ({
+	generateTokens: jest.fn(),
+	revokeOldTokens: jest.fn(),
+}));
 
-jest.mock('@/services/handle-tokens', () => ({
-    generateTokens: jest.fn(),
-    revokeOldTokens: jest.fn()
-}))
+describe("POST /users/register - Success", () => {
+	let app: ReturnType<typeof fastify>;
 
-describe('POST /users/register - Success', () => {
-    let app: ReturnType<typeof fastify>;
+	beforeAll(async () => {
+		app = fastify().withTypeProvider<ZodTypeProvider>();
+		app.setValidatorCompiler(validatorCompiler);
+		app.setSerializerCompiler(serializerCompiler);
+		app.setErrorHandler(errorHandler);
 
-    beforeAll(async () => {
+		app.register(require("@fastify/cookie"));
+		app.register(jwtPlugin, { secret: "secret" });
+		app.register(loginUserRoute);
 
-        app = fastify().withTypeProvider<ZodTypeProvider>()
-        app.setValidatorCompiler(validatorCompiler)
-        app.setSerializerCompiler(serializerCompiler)
-        app.setErrorHandler(errorHandler)
+		await app.ready();
 
-        app.register(require('@fastify/cookie'));
-        app.register(jwtPlugin, { secret: 'secret' })
-        app.register(loginUserRoute)
+		// criar usuário de teste
+		await supertest(app.server).post("/users/register").send({
+			name: "John Doe",
+			email: "john@example.com",
+			password: "password123",
+		});
+	});
 
-        await app.ready();
+	afterAll(async () => {
+		await app.close();
+	});
 
-        // criar usuário de teste
-        await supertest(app.server).post('/users/register').send({
-            name: 'John Doe',
-            email: 'john@example.com',
-            password: 'password123',
-        })
-    });
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
 
-    afterAll(async () => {
-        await app.close();
-    });
+	const user = {
+		id: 1,
+		name: "John Doe",
+		email: "john@example.com",
+		password: "hashed-password",
+	};
 
-    beforeEach(() => {
-        jest.clearAllMocks()
-    });
+	it("should login successfully", async () => {
+		(db.query.users.findFirst as jest.Mock).mockResolvedValue(user);
+		(verifyPassword as jest.Mock).mockResolvedValue(true);
+		(generateTokens as jest.Mock).mockResolvedValue({
+			accessToken: "token",
+			refreshToken: "token",
+		});
 
-    const user = {
-        id: 1,
-        name: 'John Doe',
-        email: 'john@example.com',
-        password: 'hashed-password',
-    }
+		const res = await supertest(app.server).post("/users/login").send({
+			email: user.email,
+			password: "password123",
+		});
 
-    it('should login successfully', async () => {
-        (db.query.users.findFirst as jest.Mock).mockResolvedValue(user);
-        (verifyPassword as jest.Mock).mockResolvedValue(true);
-        (generateTokens as jest.Mock).mockResolvedValue({ accessToken: 'token', refreshToken: 'token' });
+		const cookie = res.headers["set-cookie"][0];
 
-        const res = await supertest(app.server).post('/users/login').send({
-            email: user.email,
-            password: 'password123'
-        })
+		expect(res.status).toBe(200);
+		expect(res.body).toEqual({ accessToken: "token" });
+		expect(cookie).toMatch(/^refreshToken=token/);
+		expect(cookie).toContain("HttpOnly");
+		expect(cookie).toContain("Max-Age=604800");
+		expect(cookie).toContain("Path=/users/refresh");
+	});
 
-        const cookie = res.headers['set-cookie'][0];
+	it("should be unexistent email", async () => {
+		(db.query.users.findFirst as jest.Mock).mockResolvedValue(null);
+		(verifyPassword as jest.Mock).mockResolvedValue(true);
 
-        expect(res.status).toBe(200)
-        expect(res.body).toEqual({ accessToken: 'token' })
-        expect(cookie).toMatch(/^refreshToken=token/)
-        expect(cookie).toContain('HttpOnly')
-        expect(cookie).toContain('Max-Age=604800')
-        expect(cookie).toContain('Path=/users/refresh')
-    })
+		const res = await supertest(app.server).post("/users/login").send({
+			email: "john@example.com",
+			password: "password123",
+		});
 
-    it('should be unexistent email', async () => {
-        (db.query.users.findFirst as jest.Mock).mockResolvedValue(null);
-        (verifyPassword as jest.Mock).mockResolvedValue(true);
+		expect(res.status).toBe(401);
+		expect(res.body).toEqual({
+			error: "Não existe um usuário com este e-mail.",
+		});
+	});
 
-        const res = await supertest(app.server).post('/users/login').send({
-            email: 'john@example.com',
-            password: 'password123'
-        })
+	it("should be wrong password", async () => {
+		(db.query.users.findFirst as jest.Mock).mockResolvedValue(user);
+		(verifyPassword as jest.Mock).mockResolvedValue(false);
 
-        expect(res.status).toBe(401)
-        expect(res.body).toEqual({ error: 'Não existe um usuário com este e-mail.' })
+		const res = await supertest(app.server).post("/users/login").send({
+			email: user.email,
+			password: "wrong-password",
+		});
 
-    })
+		expect(res.status).toBe(401);
+		expect(res.body).toEqual({ error: "Credenciais incorretas." });
+	});
 
-    it('should be wrong password', async () => {
-        (db.query.users.findFirst as jest.Mock).mockResolvedValue(user);
-        (verifyPassword as jest.Mock).mockResolvedValue(false);
+	it("should return 500 on unexpected error", async () => {
+		// Suprime o erro no console
+		const consoleSpy = jest
+			.spyOn(console, "error")
+			.mockImplementation(() => {});
 
-        const res = await supertest(app.server).post('/users/login').send({
-            email: user.email,
-            password: 'wrong-password'
-        })
+		(db.query.users.findFirst as jest.Mock).mockResolvedValue(user);
 
-        console.log(res.body)
+		// Simula erro ao tentar buscar o usuário no DB
+		(db.query.users.findFirst as jest.Mock).mockImplementation(() => {
+			throw new Error("DB down");
+		});
 
-        expect(res.status).toBe(401)
-        expect(res.body).toEqual({ error: 'Credenciais incorretas.' })
-    })
+		(verifyPassword as jest.Mock).mockResolvedValue(true);
 
-    it('should return 500 on unexpected error', async () => {
-        // Suprime o erro no console
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+		const res = await supertest(app.server).post("/users/login").send({
+			email: user.email,
+			password: "password123",
+		});
 
-        // Simula erro ao tentar buscar o usuário no DB
-        const fromMock = jest.fn().mockImplementation(() => {
-            throw new Error('DB down');
-        });
-        (db.select as jest.Mock).mockReturnValue({ from: fromMock });
+		expect(res.status).toBe(500);
+		expect(res.body).toHaveProperty("error");
+		expect(res.body.error).toContain("Erro interno do servidor");
 
-        (verifyPassword as jest.Mock).mockResolvedValue(true);
-
-        const res = await supertest(app.server).post('/users/login').send({
-            email: user.email,
-            password: 'password123'
-        })
-
-        expect(res.status).toBe(500);
-        expect(res.body).toHaveProperty('error');
-        expect(res.body.error).toContain('Erro interno do servidor');
-
-        // Restaura console.error
-        consoleSpy.mockRestore();
-    })
-
-})
+		// Restaura console.error
+		consoleSpy.mockRestore();
+	});
+});

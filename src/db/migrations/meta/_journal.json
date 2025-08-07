@@ -1,41 +1,41 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1753747200343,
-      "tag": "0000_public_ben_grimm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1753797972446,
-      "tag": "0001_next_lord_tyger",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1753805816682,
-      "tag": "0002_polite_princess_powerful",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1754228659764,
-      "tag": "0003_steady_mimic",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1754236452916,
-      "tag": "0004_bright_lady_ursula",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1753747200343,
+			"tag": "0000_public_ben_grimm",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1753797972446,
+			"tag": "0001_next_lord_tyger",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1753805816682,
+			"tag": "0002_polite_princess_powerful",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1754228659764,
+			"tag": "0003_steady_mimic",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1754236452916,
+			"tag": "0004_bright_lady_ursula",
+			"breakpoints": true
+		}
+	]
 }

@@ -1,17 +1,24 @@
-import { pgTable, text, timestamp, bigserial, boolean, bigint } from 'drizzle-orm/pg-core'
+import {
+	bigint,
+	bigserial,
+	boolean,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
-export const companies = pgTable('companies', {
-    id: bigserial('id', { mode: 'number' }).primaryKey(),
-    name: text('name').notNull(),
-    document: text('document').unique().notNull(),
-    contact: text('contact').notNull(),
-    email: text('email').notNull(),
-    created_by: bigint('created_by', { mode: 'number' }).notNull(),
-    modified_by: bigint('modified_by', { mode: 'number' }).notNull(),
-    created_at: timestamp('created_at').defaultNow().notNull(),
-    modified_at: timestamp('modified_at'),
-    deleted: boolean('deleted').default(false).notNull()
-})
+export const companies = pgTable("companies", {
+	id: bigserial("id", { mode: "number" }).primaryKey(),
+	name: text("name").notNull(),
+	document: text("document").unique().notNull(),
+	contact: text("contact").notNull(),
+	email: text("email").notNull(),
+	created_by: bigint("created_by", { mode: "number" }).notNull(),
+	modified_by: bigint("modified_by", { mode: "number" }).notNull(),
+	created_at: timestamp("created_at").defaultNow().notNull(),
+	modified_at: timestamp("modified_at"),
+	deleted: boolean("deleted").default(false).notNull(),
+});
 
 // Table companies {
 // 	id bigserial [ pk, not null, unique ]
