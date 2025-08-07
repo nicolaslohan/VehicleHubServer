@@ -1,16 +1,9 @@
-import { fastify } from "fastify";
-import {
-	serializerCompiler,
-	validatorCompiler,
-	type ZodTypeProvider,
-} from "fastify-type-provider-zod";
+import type { fastify } from "fastify";
 import supertest from "supertest";
 import { db } from "@/db/connection";
-import { loginUserRoute } from "@/http/routes/auth/login-user";
-import { errorHandler } from "@/plugins/errors-handler";
-import jwtPlugin from "@/plugins/jwt.ts";
 import { generateTokens } from "@/services/handle-tokens";
 import { verifyPassword } from "@/services/hash";
+import { createTestServer } from "./server";
 
 jest.mock("../env.ts", () => ({
 	env: {
@@ -42,15 +35,7 @@ describe("POST /users/register - Success", () => {
 	let app: ReturnType<typeof fastify>;
 
 	beforeAll(async () => {
-		app = fastify().withTypeProvider<ZodTypeProvider>();
-		app.setValidatorCompiler(validatorCompiler);
-		app.setSerializerCompiler(serializerCompiler);
-		app.setErrorHandler(errorHandler);
-
-		app.register(require("@fastify/cookie"));
-		app.register(jwtPlugin, { secret: "secret" });
-		app.register(loginUserRoute);
-
+		app = createTestServer();
 		await app.ready();
 
 		// criar usuário de teste

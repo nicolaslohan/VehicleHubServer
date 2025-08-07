@@ -16,7 +16,7 @@ export const meRoute: FastifyPluginCallbackZod = (app) => {
 			preHandler: [app.authenticate],
 		},
 
-		async (request: any, reply) => {
+		async (request, reply) => {
 			reply.send({ user: request.user });
 		},
 	);

@@ -19,7 +19,7 @@ const jwtPlugin: FastifyPluginAsync<JwtPluginOptions> = async (
 		try {
 			await request.jwtVerify();
 		} catch (err) {
-			reply.send(err);
+			return reply.status(401).send({ error: "Unauthorized" });
 		}
 	});
 };

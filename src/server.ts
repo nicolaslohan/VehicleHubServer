@@ -37,6 +37,7 @@ import { getUserRoute } from "./http/routes/users/get-users.ts";
 import { updateUserRoute } from "./http/routes/users/update-user.ts";
 import { errorHandler } from "./plugins/errors-handler.ts";
 import jwtPlugin from "./plugins/jwt.ts";
+import { authPlugin } from "./plugins/auth.ts";
 
 if (!process.env.PORT) {
 	process.exit(1);
@@ -80,6 +81,8 @@ async function startServer() {
 	app.register(jwtPlugin, { secret: env.JWT_SECRET });
 	app.register(require("@fastify/cookie"));
 
+	app.register(authPlugin);
+
 	// Auth Routes
 	app.register(loginUserRoute);
 	app.register(registerUserRoute);
@@ -87,7 +90,7 @@ async function startServer() {
 	app.register(refreshRoute);
 	app.register(logoutRoute);
 
-	// // Users Routes
+	// Users Routes
 	app.register(getUserRoute);
 	app.register(updateUserRoute);
 	app.register(deleteUserRoute);

@@ -1,14 +1,8 @@
-import { fastify } from "fastify";
-import {
-	serializerCompiler,
-	validatorCompiler,
-	type ZodTypeProvider,
-} from "fastify-type-provider-zod";
+import type { fastify } from "fastify";
 import supertest from "supertest";
 import { db } from "@/db/connection";
-import { registerUserRoute } from "@/http/routes/auth/register-user";
-import { errorHandler } from "@/plugins/errors-handler";
 import { hashPassword } from "@/services/hash";
+import { createTestServer } from "./server";
 
 jest.mock("@/db/connection", () => ({
 	db: {
@@ -25,11 +19,7 @@ describe("POST /users/register - Success", () => {
 	let app: ReturnType<typeof fastify>;
 
 	beforeAll(async () => {
-		app = fastify().withTypeProvider<ZodTypeProvider>();
-		app.setValidatorCompiler(validatorCompiler);
-		app.setSerializerCompiler(serializerCompiler);
-		app.register(registerUserRoute);
-		app.setErrorHandler(errorHandler);
+		app = createTestServer();
 		await app.ready();
 	});
 
