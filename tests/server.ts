@@ -13,6 +13,7 @@ import { errorHandler } from "@/plugins/errors-handler.ts";
 import { meRoute } from "@/http/routes/auth/me.ts";
 import { registerUserRoute } from "@/http/routes/auth/register-user.ts";
 import { loginUserRoute } from "@/http/routes/auth/login-user.ts";
+import { createActionRoute } from "@/http/routes/actions/create-action.ts";
 
 export function createTestServer({ mockAuth = false } = {}) {
 	const app = fastify().withTypeProvider<ZodTypeProvider>();
@@ -41,6 +42,7 @@ export function createTestServer({ mockAuth = false } = {}) {
 	app.register(registerUserRoute);
 	app.register(loginUserRoute);
 	app.register(meRoute);
+	app.register(createActionRoute);
 
 	return app;
 }
