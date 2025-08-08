@@ -1,12 +1,9 @@
 import { eq, sql } from "drizzle-orm";
 import type { FastifyPluginCallbackZod } from "fastify-type-provider-zod";
-import { z } from "zod";
-import {
-	createActionParams,
-} from "@/types/action-types.ts";
+import { ZodError, z } from "zod";
 import { db } from "@/db/connection.ts";
 import { schema } from "@/db/schema/index.ts";
-import { ZodError } from "zod";
+import { createActionParams } from "@/types/action-types.ts";
 
 export const createActionRoute: FastifyPluginCallbackZod = (app) => {
 	app.post(
@@ -30,13 +27,12 @@ export const createActionRoute: FastifyPluginCallbackZod = (app) => {
 						message: z.string(),
 					}),
 					500: z.object({
-						message: z.string(),
+						error: z.string(),
 					}),
 				},
 			},
 		},
 		async (request, reply) => {
-
 			try {
 				const { action, created_by } = request.body;
 
@@ -86,25 +82,24 @@ export const createActionRoute: FastifyPluginCallbackZod = (app) => {
 
 				if (!insertedAction) {
 					return reply.status(500).send({
-						message: "Erro ao criar ação.",
+						error: "Erro ao criar ação.",
 					});
 				}
 
 				return reply.status(201).send({
 					actionId: insertedAction.id,
 				});
-			} catch(err) {
+			} catch (err) {
 				if (err instanceof ZodError) {
-					return reply.status(400).send({
-						message: err.message,
+					return reply.status(500).send({
+						error: err.message,
 					});
 				}
 
 				return reply.status(500).send({
-					message: "Erro interno do servidor.",
+					error: "Erro interno do servidor.",
 				});
 			}
-			
 		},
 	);
 };

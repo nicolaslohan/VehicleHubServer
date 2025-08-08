@@ -43,11 +43,9 @@ export const registerUserRoute: FastifyPluginCallbackZod = (app) => {
 					.where(eq(schema.users.email, email));
 
 				if (existingUser.length > 0)
-					return reply
-						.code(400)
-						.send({
-							error: "Já existe um usuário cadastrado com este e-mail.",
-						});
+					return reply.code(400).send({
+						error: "Já existe um usuário cadastrado com este e-mail.",
+					});
 
 				await db
 					.insert(schema.users)

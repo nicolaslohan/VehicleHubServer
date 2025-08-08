@@ -22,7 +22,7 @@ export const deleteActionRoute: FastifyPluginCallbackZod = (app) => {
 						message: z.string(),
 					}),
 					500: z.object({
-						message: z.string(),
+						error: z.string(),
 					}),
 				},
 			},
@@ -39,7 +39,7 @@ export const deleteActionRoute: FastifyPluginCallbackZod = (app) => {
 
 			if (!(checkActionsExists.length > 0)) {
 				return reply.status(404).send({
-					message: "Ação não encontrado.",
+					message: "Ação não encontrada.",
 				});
 			}
 
@@ -56,7 +56,7 @@ export const deleteActionRoute: FastifyPluginCallbackZod = (app) => {
 
 			if (!deletedAction) {
 				return reply.status(500).send({
-					message: "Erro ao deletar ação.",
+					error: "Erro ao deletar ação.",
 				});
 			}
 

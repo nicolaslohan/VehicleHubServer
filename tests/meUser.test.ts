@@ -25,21 +25,23 @@ describe("GET /users/me", () => {
 		});
 	});
 
-    it("should return 401 if not authenticated", async () => {
+	it("should return 401 if not authenticated", async () => {
 		// Cria novo servidor sem mock de autenticação
-		const unauthenticatedApp = createTestServer({ mockAuth: false })
-		await unauthenticatedApp.ready()
+		const unauthenticatedApp = createTestServer({ mockAuth: false });
+		await unauthenticatedApp.ready();
 
-		const res = await supertest(unauthenticatedApp.server).get("/users/me")
+		const res = await supertest(unauthenticatedApp.server).get("/users/me");
 
-		expect(res.status).toBe(401)
-		expect(res.body).toHaveProperty("error")
-		expect(res.body.error.toLowerCase()).toMatch(/não autorizado|unauthorized|jwt/i)
+		expect(res.status).toBe(401);
+		expect(res.body).toHaveProperty("error");
+		expect(res.body.error.toLowerCase()).toMatch(
+			/não autorizado|unauthorized|jwt/i,
+		);
 
-		await unauthenticatedApp.close()
+		await unauthenticatedApp.close();
 	});
 
-    // it("should return 500 on unexpected error", async () => {
+	// it("should return 500 on unexpected error", async () => {
 	// 	// Cria app com autenticação mockada que lança erro
 	// 	const appWithError = createTestServer({ mockAuth: true })
 

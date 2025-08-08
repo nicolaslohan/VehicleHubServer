@@ -35,9 +35,9 @@ import { getDepartmentsRoute } from "./http/routes/departments/get-departments.t
 import { deleteUserRoute } from "./http/routes/users/delete-user.ts";
 import { getUserRoute } from "./http/routes/users/get-users.ts";
 import { updateUserRoute } from "./http/routes/users/update-user.ts";
+import { authPlugin } from "./plugins/auth.ts";
 import { errorHandler } from "./plugins/errors-handler.ts";
 import jwtPlugin from "./plugins/jwt.ts";
-import { authPlugin } from "./plugins/auth.ts";
 
 if (!process.env.PORT) {
 	process.exit(1);

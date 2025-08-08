@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core/alias";
 import type { FastifyPluginCallbackZod } from "fastify-type-provider-zod";
 import z, { ZodError } from "zod";
-import { actionsListResponse } from "@/types/action-types.ts";
-import { db } from "../../../db/connection.ts";
-import { schema } from "../../../db/schema/index.ts";
+import { db } from "@/db/connection.ts";
+import { schema } from "@/db/schema/index.ts";
+import { actionResponse, actionsListResponse } from "@/types/action-types.ts";
 
 export const getActionsRoute: FastifyPluginCallbackZod = (app) => {
 	app.get(
@@ -14,7 +14,7 @@ export const getActionsRoute: FastifyPluginCallbackZod = (app) => {
 				summary: "Listagem de todas as ações",
 				tags: ["Actions"],
 				response: {
-					200: actionsListResponse,
+					200: z.array(actionResponse),
 					400: z.object({ error: z.string() }),
 					500: z.object({ error: z.string() }),
 				},

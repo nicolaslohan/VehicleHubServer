@@ -62,12 +62,10 @@ export const updateAllCitiesRoute: FastifyPluginCallbackZod = (app) => {
 						});
 				}
 
-				return reply
-					.status(200)
-					.send({
-						message: "Cities updated successfully",
-						count: cityData.length,
-					});
+				return reply.status(200).send({
+					message: "Cities updated successfully",
+					count: cityData.length,
+				});
 			} catch (error) {
 				console.error(error);
 				const errMsg = error instanceof Error ? error.message : String(error);

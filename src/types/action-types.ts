@@ -1,18 +1,20 @@
 import z from "zod";
 
 export const actionResponse = z.object({
-	id: z.bigint(),
+	id: z.number(),
 	action: z.string(),
 	created_at: z.date(),
-	modified_at: z.date(),
+	modified_at: z.date().nullable(),
 	created_by: z.object({
 		id: z.number(),
 		name: z.string(),
 	}),
-	modified_by: z.object({
-		id: z.number(),
-		name: z.string(),
-	}),
+	modified_by: z
+		.object({
+			id: z.number(),
+			name: z.string(),
+		})
+		.nullable(),
 	deleted: z.boolean(),
 });
 
